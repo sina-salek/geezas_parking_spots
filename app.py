@@ -137,8 +137,8 @@ def main():
             )
 
         st.write(f"**Final Average Minimum Wait Time**: {final_avg_wait_time:.2f} minutes")
-        st.write(f"**If you run the simulation many more times, you can expect the average wait time to be in the range of "
-                 f"{final_avg_wait_time:.2f}±{ confidence_interval:.2f} minutes 95% of the time. The longer"
+        st.write(f"**Given the outcome of the simulation, we expect the true average minimum wait time to be within"
+                 f" {final_avg_wait_time:.2f}±{ confidence_interval:.2f} minutes with 95% of confidence. The longer"
                  f" you run the trials, the smaller the uncertainty gets.**")
 
 
