@@ -2,11 +2,13 @@ import streamlit as st
 import numpy as np
 import matplotlib.pyplot as plt
 import time
+from scipy import stats
 
 
 def simulate_parking(num_trials=1000, max_wait_time=30, num_parking_spots=4, fast_forward=10):
     min_wait_times = []  # Store the minimum wait times for each trial
     avg_wait_times = []  # Store the running average of wait times
+    std_wait_times = []  # Store the running standard deviation of wait times
 
     # Set up the placeholders for the plots
     spot_chart_placeholder = st.empty()
@@ -53,6 +55,7 @@ def simulate_parking(num_trials=1000, max_wait_time=30, num_parking_spots=4, fas
             min_wait = np.min(parking_spots)
             min_wait_times.append(min_wait)
             avg_wait_times.append(np.mean(min_wait_times))
+            std_wait_times.append(np.std(min_wait_times))
 
         # Update parking spot bars and texts
         for i, (bar, wait_time, text) in enumerate(zip(bars_spots, parking_spots, spot_texts)):
@@ -84,7 +87,10 @@ def simulate_parking(num_trials=1000, max_wait_time=30, num_parking_spots=4, fas
 
     # Return final average wait time
     final_avg_wait_time = avg_wait_times[-1]
-    return final_avg_wait_time
+    final_standard_error = std_wait_times[-1] / np.sqrt(num_trials)
+    z_value = stats.norm.ppf(0.975)
+    confidence_interval = z_value * final_standard_error
+    return final_avg_wait_time, confidence_interval
 
 
 def main():
@@ -123,7 +129,7 @@ def main():
 
     if st.button('Run Simulation'):
         with st.spinner('Running simulation...'):
-            final_avg_wait_time = simulate_parking(
+            final_avg_wait_time, confidence_interval = simulate_parking(
                 num_trials=int(num_trials),
                 max_wait_time=float(max_wait_time),
                 num_parking_spots=int(num_parking_spots),
@@ -131,6 +137,9 @@ def main():
             )
 
         st.write(f"**Final Average Minimum Wait Time**: {final_avg_wait_time:.2f} minutes")
+        st.write(f"**If you run the simulation many more times, you can expect the average wait time to be in the range of "
+                 f"{final_avg_wait_time:.2f}±{ confidence_interval:.2f} minutes 95% of the time. The longer"
+                 f"you run the trials, the smaller the uncertainty gets.**")
 
 
 if __name__ == '__main__':
